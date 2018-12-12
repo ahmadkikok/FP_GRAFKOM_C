@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset=utf-8>
+    <title>Final Project Grafkom</title>
+    <style>
+        body {
+            margin: 0;
+            background: #bbbbbb;
+            overflow: hidden;
+        }
+    </style>
+    <script src="js/three.js"></script>
+    <script src="js/OrbitControls.js"></script>
+    <script src="js/OBJLoader.js"></script>
+    <script src="js/MTLLoader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.3/dat.gui.js"></script>
+    <script src="js/threex.keyboardstate.js"></script>
+    <script src="js/threex.planets.js"></script>
+    <script src="js/ColladaLoader.js"></script>
+    <script src="js/PointerLockControls.js"></script>
+</head>
+
+<body>
+    <script>
+        var scene, camera, renderer, controls;
+        var starSphere, spaceShip;
+        var onRenderFcts= [];
+        var lookAtx = 0, lookAty = 2, lookAtz = 3;
+        var starTexture;
+        
+        init();
+        render();
+        
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 1000);
+//            camera = new THREE.OrthographicCamera( 10 / - 2, 10 / 2, 10 / 2, 10 / - 2, 1, 1000 );
+            camera.position.set(0, 2, 4);
+            
+            renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+            
+            addGalaxy();
+            loadShip();
+            addLight();
+            setupControls();
+//            addControls();
+        }
+        
+        function addGalaxy() {
+            starSphere  = createStarfield();
+            scene.add(starSphere);
+        }
+        
+        function createStarfield() {
+            var texture	= THREE.ImageUtils.loadTexture(THREEx.Planets.baseURL+'assets/galaxy_starfield.png');
+            starTexture = texture;
+            var material	= new THREE.MeshBasicMaterial({
+                map	: texture,
+                side	: THREE.BackSide
+            });
+            var geometry	= new THREE.SphereGeometry(100, 32, 32);
+            var mesh	= new THREE.Mesh(geometry, material);
+            
+            return mesh;
+        }
+        
+        function loadShip() {
+            var mtlLoader = new THREE.MTLLoader();
+            mtlLoader.setResourcePath('../assets/');
+            mtlLoader.setPath('../assets/');
+            mtlLoader.load('ship.mtl', function(materials) {
+                materials.preload();
+
+                var objLoader = new THREE.OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('../assets/');
+                objLoader.load('SmallSpaceFighter.obj', function(object) {
+                    spaceShip = object;
+                    spaceShip.scale.set(.5, .5, .5);
+                    scene.add(spaceShip);
+                });
+            });
+        }
+        
+        function addLight() {
+            var hemiLight = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1.5 );
+            scene.add(hemiLight);
+            
+//            hemiLightHelper = new THREE.HemisphereLightHelper( hemiLight, 10 );
+//            scene.add( hemiLightHelper );
+        }
+        
+        function addControls() {
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.campingFactor = 0.25;
+            controls.enableZoom = true;
+        }
+        
+        function setupControls() {
+            var keyboard  = new THREEx.KeyboardState();
+            
+            onRenderFcts.push(function(delta, now){
+                // only if the spaceship is loaded
+                if( spaceShip === null )  return;
+
+                // set the speed
+                var speed = 10;
+                // only if spaceships is loaded
+                if ( keyboard.pressed('a') ){
+                    spaceShip.position.x  -= speed * delta;
+//                    camera.position.x -= speed * delta;
+//                    lookAtx += speed * delta / 1000;
+//                    camera.lookAt(lookAtx, lookAty, lookAtz);
+                } else if( keyboard.pressed('d') ){
+                    spaceShip.position.x  += speed * delta;
+//                    lookAtx -= speed * delta / 1000;
+//                    camera.lookAt(lookAtx, lookAty, lookAtz);
+                }
+            })
+        }
+        
+        function render() {
+            onRenderFcts.push(function(){
+                renderer.render( scene, camera );		
+            });
+            
+            var lastTimeMsec= null
+            requestAnimationFrame(function animate(nowMsec){
+                // keep looping
+                requestAnimationFrame( animate );
+                // measure time
+                lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
+                var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
+                lastTimeMsec	= nowMsec
+                // call each update function
+                onRenderFcts.forEach(function(onRenderFct){
+                    onRenderFct(deltaMsec/1000, nowMsec/1000)
+                })
+            });
+        }
+    </script>
+</body>
+
+</html>
