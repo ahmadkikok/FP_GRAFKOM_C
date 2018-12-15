@@ -20,11 +20,11 @@
     <script src="js/threex.planets.js"></script>
     <script src="js/ColladaLoader.js"></script>
     <script src="js/PointerLockControls.js"></script>
+	<script src='js/threex.atmospherematerial.js'></script>
+	<script src="js/threex.atmospheredatgui.js"></script>
 	
 	<!--<script src='vendor/three.js/build/three.min.js'></script>-->
-	<script src='threex.atmospherematerial.js'></script>
-	<script src='vendor/three.js/examples/js/libs/dat.gui.min.js'></script>
-	<script src="threex.atmospheredatgui.js"></script>
+	<!--<script src='vendor/three.js/examples/js/libs/dat.gui.min.js'></script>-->
 </head>
 
 <body>
@@ -62,7 +62,7 @@ loadPlanet();
         }
         
          function createStarfield() {
-            var texture = THREE.ImageUtils.loadTexture('assets/galaxy_starfield.png');
+            var texture = THREE.ImageUtils.loadTexture(THREEx.Planets.baseURL+'assets/galaxy_starfield.png');
             starTexture = texture;
             var material = new THREE.MeshBasicMaterial({
                 map : texture,
@@ -93,52 +93,51 @@ loadPlanet();
         }
         
 		function loadPlanet(){
-		var containerEarth	= new THREE.Object3D()
-	containerEarth.rotateZ(-23.4 * Math.PI/180)
-	containerEarth.position.z	= 0
-	containerEarth.position.x	= -3
-	containerEarth.position.y	= 3
-	scene.add(containerEarth)
-	var moonMesh	= THREEx.Planets.createMoon()
-	moonMesh.position.set(0.5,0.5,0.5)
-	moonMesh.scale.multiplyScalar(1/5)
-	moonMesh.receiveShadow	= true
-	moonMesh.castShadow	= true
-	containerEarth.add(moonMesh)
-	var earthMesh	= THREEx.Planets.createEarth()
-	earthMesh.receiveShadow	= true
-	earthMesh.castShadow	= true
-	containerEarth.add(earthMesh)
-	onRenderFcts.push(function(delta, now){
-		earthMesh.rotation.y += 1/32 * delta;		
-	})
-	var geometry	= new THREE.SphereGeometry(0.5, 32, 32)
-	var material	= THREEx.createAtmosphereMaterial()
-	material.uniforms.glowColor.value.set(0x00b3ff)
-	material.uniforms.coeficient.value	= 0.8
-	material.uniforms.power.value		= 2.0
-	var mesh	= new THREE.Mesh(geometry, material );
-	mesh.scale.multiplyScalar(1.01);
-	containerEarth.add( mesh );
-	// new THREEx.addAtmosphereMaterial2DatGui(material, datGUI)
-	var geometry	= new THREE.SphereGeometry(0.5, 32, 32)
-	var material	= THREEx.createAtmosphereMaterial()
-	material.side	= THREE.BackSide
-	material.uniforms.glowColor.value.set(0x00b3ff)
-	material.uniforms.coeficient.value	= 0.5
-	material.uniforms.power.value		= 4.0
-	var mesh	= new THREE.Mesh(geometry, material );
-	mesh.scale.multiplyScalar(1.15);
-	containerEarth.add( mesh );
-	// new THREEx.addAtmosphereMaterial2DatGui(material, datGUI)
-	var earthCloud	= THREEx.Planets.createEarthCloud()
-	earthCloud.receiveShadow	= true
-	earthCloud.castShadow	= true
-	containerEarth.add(earthCloud)
-	onRenderFcts.push(function(delta, now){
-		earthCloud.rotation.y += 1/8 * delta;		
-	})
-	
+			var containerEarth	= new THREE.Object3D()
+			containerEarth.rotateZ(-23.4 * Math.PI/180)
+			containerEarth.position.z	= 0
+			containerEarth.position.x	= -3
+			containerEarth.position.y	= 3
+			scene.add(containerEarth)
+				var moonMesh	= THREEx.Planets.createMoon()
+					moonMesh.position.set(0.5,0.5,0.5)
+					moonMesh.scale.multiplyScalar(1/5)
+					moonMesh.receiveShadow	= true
+					moonMesh.castShadow	= true
+					containerEarth.add(moonMesh)
+				var earthMesh	= THREEx.Planets.createEarth()
+					earthMesh.receiveShadow	= true
+					earthMesh.castShadow	= true
+					containerEarth.add(earthMesh)
+			onRenderFcts.push(function(delta, now){
+				earthMesh.rotation.y += 1/32 * delta;		
+		})
+			var geometry	= new THREE.SphereGeometry(0.5, 32, 32)
+			var material	= THREEx.createAtmosphereMaterial()
+				material.uniforms.glowColor.value.set(0x00b3ff)
+				material.uniforms.coeficient.value	= 0.8
+				material.uniforms.power.value		= 2.0
+			var mesh	= new THREE.Mesh(geometry, material );
+				mesh.scale.multiplyScalar(1.01);
+				containerEarth.add( mesh );
+			// new THREEx.addAtmosphereMaterial2DatGui(material, datGUI)
+			var geometry	= new THREE.SphereGeometry(0.5, 32, 32)
+			var material	= THREEx.createAtmosphereMaterial()
+				material.side	= THREE.BackSide
+				material.uniforms.glowColor.value.set(0x00b3ff)
+				material.uniforms.coeficient.value	= 0.5
+				material.uniforms.power.value		= 4.0
+			var mesh = new THREE.Mesh(geometry, material );
+				mesh.scale.multiplyScalar(1.15);
+				containerEarth.add( mesh );
+			// new THREEx.addAtmosphereMaterial2DatGui(material, datGUI)
+			var earthCloud	= THREEx.Planets.createEarthCloud()
+				earthCloud.receiveShadow	= true
+				earthCloud.castShadow	= true
+				containerEarth.add(earthCloud)
+		onRenderFcts.push(function(delta, now){
+			earthCloud.rotation.y += 1/8 * delta;		
+			})
 		}
         function addLight() {
             var hemiLight = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1.5 );
