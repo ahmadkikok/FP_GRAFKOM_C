@@ -103,7 +103,8 @@
         
         function setupControls() {
             var keyboard  = new THREEx.KeyboardState();
-            
+            var current;
+			
             onRenderFcts.push(function(delta, now){
                 // only if the spaceship is loaded
                 if( spaceShip === null )  return;
@@ -112,14 +113,22 @@
                 var speed = 10;
                 // only if spaceships is loaded
                 if ( keyboard.pressed('a') ){
+					if (spaceShip.position.x > -5) {
                     spaceShip.position.x  -= speed * delta;
+					current = spaceShip.position.x;
+//					console.log(current);
+					}
 //                    camera.position.x -= speed * delta;
 //                    lookAtx += speed * delta / 1000;
 //                    camera.lookAt(lookAtx, lookAty, lookAtz);
                 } else if( keyboard.pressed('d') ){
+					if (spaceShip.position.x < 5) {
                     spaceShip.position.x  += speed * delta;
+					current = spaceShip.position.x;
+//					console.log(current);
 //                    lookAtx -= speed * delta / 1000;
 //                    camera.lookAt(lookAtx, lookAty, lookAtz);
+					}
                 }
             })
         }
