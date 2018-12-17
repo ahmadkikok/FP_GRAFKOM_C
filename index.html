@@ -175,6 +175,13 @@ loadPlanet();
                     spaceShip.position.x  += speed * delta;
 //                    lookAtx -= speed * delta / 1000;
 //                    camera.lookAt(lookAtx, lookAty, lookAtz);
+                } else if( keyboard.pressed('w') ) {
+                    if (spaceShip.position.y < 4)
+                        spaceShip.position.y += speed * delta;
+                }
+                else if( keyboard.pressed('s') ) {
+                    if (spaceShip.position.y > -1)
+                        spaceShip.position.y -= speed * delta;
                 }
             })
         }
