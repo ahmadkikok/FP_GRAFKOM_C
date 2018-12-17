@@ -11,6 +11,7 @@
             overflow: hidden;
         }
     </style>
+	<script src="js/Math.js"></script>
     <script src="js/three.js"></script>
     <script src="js/OrbitControls.js"></script>
     <script src="js/OBJLoader.js"></script>
@@ -53,7 +54,14 @@
             addLight();
             setupControls();
 //            addControls();
-loadPlanet();
+
+for(i=0;i<10;i++){
+var planetx=THREE.Math.randInt(-8,8);
+var planety=THREE.Math.randInt(0,3);
+var planetz=THREE.Math.randInt(-7,-3);
+loadPlanet(planetx,planety,planetz);
+}
+
         }
         
         function addGalaxy() {
@@ -92,12 +100,12 @@ loadPlanet();
             });
         }
         
-		function loadPlanet(){
+		function loadPlanet(planetx,planety,planetz){
 			var containerEarth	= new THREE.Object3D()
 			containerEarth.rotateZ(-23.4 * Math.PI/180)
-			containerEarth.position.z	= 0
-			containerEarth.position.x	= -3
-			containerEarth.position.y	= 3
+			containerEarth.position.z	= planetz
+			containerEarth.position.x	= planetx
+			containerEarth.position.y	= planety
 			scene.add(containerEarth)
 				var moonMesh	= THREEx.Planets.createMoon()
 					moonMesh.position.set(0.5,0.5,0.5)
