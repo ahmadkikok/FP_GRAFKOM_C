@@ -42,6 +42,7 @@
         var moon_ymax = 5, moon_ymin = -1;
         var moon_zstart = -50;
         var moon_speed = 40;
+        var explosion, particleGeometry, particleCount = 100;
         
         init();
         render();
@@ -61,6 +62,7 @@
             addLight();
 
             addMoon();
+            addExplosion();
 
             setupControls();
             // addControls();
@@ -103,11 +105,55 @@
                     var shipbox = new THREE.Box3().setFromObject(spaceShip);
 
                     if (moonbox.intersectsBox(shipbox)) {
-                        console.log('nabrak');
+                        explode();
                         resetMoonPos(moons[i]);
                     }                    
                 }
             });
+        }
+
+        function addExplosion(){
+            particleGeometry = new THREE.Geometry();
+            for (var i = 0; i < particleCount; i ++ ) {
+                var vertex = new THREE.Vector3();
+                particleGeometry.vertices.push( vertex );
+            }
+            var pMaterial = new THREE.ParticleBasicMaterial({
+                color: 0xfffafa,
+                size: 0.05
+            });
+            explosion = new THREE.Points( particleGeometry, pMaterial );
+            scene.add( explosion );
+            explosion.visible=false;
+        }
+
+        function explode(){
+            explosion.position.x = spaceShip.position.x;
+            explosion.position.y = spaceShip.position.y;
+            explosion.position.z = spaceShip.position.z;
+            for (var i = 0; i < particleCount; i ++ ) {
+                var vertex = new THREE.Vector3();
+                vertex.x = -0.2 + Math.random() * 0.4;
+                vertex.y = -0.2 + Math.random() * 0.4 ;
+                vertex.z = -0.2 + Math.random() * 0.4;
+                particleGeometry.vertices[i]=vertex;
+            }
+            explosionPower = 1.07;
+            explosion.visible = true;
+        }
+
+        function doExplosion() {//called in update
+            if (explosion && !explosion.visible) return;
+            for (var i = 0; i < particleCount; i ++ ) {
+                particleGeometry.vertices[i].multiplyScalar(explosionPower);
+            }
+            if(explosionPower > 1.005){
+                explosionPower -= 0.001;
+            } else {
+                explosion.visible = false;
+            }
+
+            particleGeometry.verticesNeedUpdate = true;
         }
         
         function addGalaxy() {
@@ -198,6 +244,8 @@
                 onRenderFcts.forEach(function(onRenderFct){
                     onRenderFct(deltaMsec/1000, nowMsec/1000)
                 })
+
+                doExplosion();
             });
         }
     </script>
