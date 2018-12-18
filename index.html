@@ -23,6 +23,7 @@
     <script src="js/PointerLockControls.js"></script>
 	<script src='js/threex.atmospherematerial.js'></script>
 	<script src="js/threex.atmospheredatgui.js"></script>
+    <script src="js/DeviceOrientationControls.js"></script>
 	
 	<!--<script src='vendor/three.js/build/three.min.js'></script>-->
 	<!--<script src='vendor/three.js/examples/js/libs/dat.gui.min.js'></script>-->
@@ -35,6 +36,12 @@
         var onRenderFcts= [];
         var lookAtx = 0, lookAty = 2, lookAtz = 3;
         var starTexture;
+        var moon_count = 3;
+        var moons = [];
+        var moon_xmax = 7, moon_xmin = -7;
+        var moon_ymax = 5, moon_ymin = -1;
+        var moon_zstart = -50;
+        var moon_speed = 40;
         
         init();
         render();
@@ -52,16 +59,55 @@
             addGalaxy();
             loadShip();
             addLight();
+
+            addMoon();
+
             setupControls();
-//            addControls();
+            // addControls();
+        }
 
-for(i=0;i<10;i++){
-var planetx=THREE.Math.randInt(-8,8);
-var planety=THREE.Math.randInt(0,3);
-var planetz=THREE.Math.randInt(-7,-3);
-loadPlanet(planetx,planety,planetz);
-}
+        function addMoon() {
+            for (var i = 0; i < moon_count; i++) {
+                var moon = THREEx.Planets.createMoon();
+                moons.push(moon);
+                resetMoonPos(moon);
+                scene.add(moon);
+            }
+        }
 
+        function resetMoonPos(moon) {
+            moon.position.z = -50;
+            moon.position.x = (Math.random() * (moon_xmax - moon_xmin)) + moon_xmin;
+            moon.position.y = (Math.random() * (moon_ymax - moon_ymin)) + moon_ymin;
+        }
+
+        function updateZMoon() {
+            onRenderFcts.push(function(delta, now){
+                    // console.log(i);
+                for (var i = 0; i < moons.length; i++) {
+                    moons[i].position.z += moon_speed * delta;
+
+                    if (moons[i].position.z > 4) {
+                        resetMoonPos(moons[i]);
+                    }
+                }
+            });
+        }
+
+        function checkCollision() {
+            onRenderFcts.push(function(delta, now){
+                if( spaceShip === undefined || moons.length <= 0) return;
+
+                for (var i = 0; i < moons.length; i++) {
+                    var moonbox = new THREE.Box3().setFromObject(moons[i]);
+                    var shipbox = new THREE.Box3().setFromObject(spaceShip);
+
+                    if (moonbox.intersectsBox(shipbox)) {
+                        console.log('nabrak');
+                        resetMoonPos(moons[i]);
+                    }                    
+                }
+            });
         }
         
         function addGalaxy() {
@@ -82,71 +128,19 @@ loadPlanet(planetx,planety,planetz);
             return mesh;
         }
         
-         function loadShip() {
-            var mtlLoader = new THREE.MTLLoader();
-            mtlLoader.setResourcePath('assets/');
-            mtlLoader.setPath('assets/');
-            mtlLoader.load('ship.mtl', function(materials) {
-                materials.preload();
+        function addShip() {
+            spaceShip.scale.set(.5, .5, .5);
+            scene.add( spaceShip );
+        }
 
-                var objLoader = new THREE.OBJLoader();
-                objLoader.setMaterials(materials);
-                objLoader.setPath('assets/');
-                objLoader.load('SmallSpaceFighter.obj', function(object) {
-                    spaceShip = object;
-                    spaceShip.scale.set(.5, .5, .5);
-                    scene.add(spaceShip);
-                });
-            });
+        function loadShip() {
+            var manager = new THREE.LoadingManager( addShip );
+            var loader = new THREE.OBJLoader( manager );
+            loader.load( 'assets/SmallSpaceFighter.obj', function ( obj ) {
+                spaceShip = obj;
+            }, function() { }, function() { } );
         }
         
-		function loadPlanet(planetx,planety,planetz){
-			var containerEarth	= new THREE.Object3D()
-			containerEarth.rotateZ(-23.4 * Math.PI/180)
-			containerEarth.position.z	= planetz
-			containerEarth.position.x	= planetx
-			containerEarth.position.y	= planety
-			scene.add(containerEarth)
-				var moonMesh	= THREEx.Planets.createMoon()
-					moonMesh.position.set(0.5,0.5,0.5)
-					moonMesh.scale.multiplyScalar(1/5)
-					moonMesh.receiveShadow	= true
-					moonMesh.castShadow	= true
-					containerEarth.add(moonMesh)
-				var earthMesh	= THREEx.Planets.createEarth()
-					earthMesh.receiveShadow	= true
-					earthMesh.castShadow	= true
-					containerEarth.add(earthMesh)
-			onRenderFcts.push(function(delta, now){
-				earthMesh.rotation.y += 1/32 * delta;		
-		})
-			var geometry	= new THREE.SphereGeometry(0.5, 32, 32)
-			var material	= THREEx.createAtmosphereMaterial()
-				material.uniforms.glowColor.value.set(0x00b3ff)
-				material.uniforms.coeficient.value	= 0.8
-				material.uniforms.power.value		= 2.0
-			var mesh	= new THREE.Mesh(geometry, material );
-				mesh.scale.multiplyScalar(1.01);
-				containerEarth.add( mesh );
-			// new THREEx.addAtmosphereMaterial2DatGui(material, datGUI)
-			var geometry	= new THREE.SphereGeometry(0.5, 32, 32)
-			var material	= THREEx.createAtmosphereMaterial()
-				material.side	= THREE.BackSide
-				material.uniforms.glowColor.value.set(0x00b3ff)
-				material.uniforms.coeficient.value	= 0.5
-				material.uniforms.power.value		= 4.0
-			var mesh = new THREE.Mesh(geometry, material );
-				mesh.scale.multiplyScalar(1.15);
-				containerEarth.add( mesh );
-			// new THREEx.addAtmosphereMaterial2DatGui(material, datGUI)
-			var earthCloud	= THREEx.Planets.createEarthCloud()
-				earthCloud.receiveShadow	= true
-				earthCloud.castShadow	= true
-				containerEarth.add(earthCloud)
-		onRenderFcts.push(function(delta, now){
-			earthCloud.rotation.y += 1/8 * delta;		
-			})
-		}
         function addLight() {
             var hemiLight = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1.5 );
             scene.add(hemiLight);
@@ -166,28 +160,19 @@ loadPlanet(planetx,planety,planetz);
             var keyboard  = new THREEx.KeyboardState();
 			
             onRenderFcts.push(function(delta, now){
-                // only if the spaceship is loaded
                 if( spaceShip === null )  return;
 
-                // set the speed
                 var speed = 10;
-                // only if spaceships is loaded
                 if ( keyboard.pressed('a') ){
 					if (spaceShip.position.x > -5)
                     spaceShip.position.x  -= speed * delta;
-//                    camera.position.x -= speed * delta;
-//                    lookAtx += speed * delta / 1000;
-//                    camera.lookAt(lookAtx, lookAty, lookAtz);
                 } else if( keyboard.pressed('d') ){
 					if (spaceShip.position.x < 5)
                     spaceShip.position.x  += speed * delta;
-//                    lookAtx -= speed * delta / 1000;
-//                    camera.lookAt(lookAtx, lookAty, lookAtz);
                 } else if( keyboard.pressed('w') ) {
                     if (spaceShip.position.y < 4)
                         spaceShip.position.y += speed * delta;
-                }
-                else if( keyboard.pressed('s') ) {
+                } else if( keyboard.pressed('s') ) {
                     if (spaceShip.position.y > -1)
                         spaceShip.position.y -= speed * delta;
                 }
@@ -195,6 +180,8 @@ loadPlanet(planetx,planety,planetz);
         }
         
         function render() {
+            updateZMoon();
+            checkCollision();
             onRenderFcts.push(function(){
                 renderer.render( scene, camera );		
             });
