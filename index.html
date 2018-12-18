@@ -11,6 +11,7 @@
             overflow: hidden;
         }
     </style>
+    
 	<script src="js/Math.js"></script>
     <script src="js/three.js"></script>
     <script src="js/OrbitControls.js"></script>
@@ -42,7 +43,7 @@
         function init() {
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 1000);
-//            camera = new THREE.OrthographicCamera( 10 / - 2, 10 / 2, 10 / 2, 10 / - 2, 1, 1000 );
+//          camera = new THREE.OrthographicCamera( 10 / - 2, 10 / 2, 10 / 2, 10 / - 2, 1, 1000 );
             camera.position.set(0, 2, 4);
             
             renderer = new THREE.WebGLRenderer();
@@ -53,15 +54,14 @@
             loadShip();
             addLight();
             setupControls();
-//            addControls();
+//          addControls();
 
-for(i=0;i<1;i++){
-	var planetx=THREE.Math.randInt(-2,2);
-	var planety=THREE.Math.randInt(0,3);
-	var planetz=THREE.Math.randInt(-7,-3);
-	loadPlanet(planetx,planety,planetz);
-}
-
+            for(i=0;i<4;i++){
+                var planetx=THREE.Math.randInt(-8,8);
+                var planety=THREE.Math.randInt(0,3);
+                var planetz=THREE.Math.randInt(-10,-5);
+                loadPlanet(planetx,planety,planetz);
+            }
         }
         
         function addGalaxy() {
@@ -94,22 +94,22 @@ for(i=0;i<1;i++){
                 objLoader.setPath('assets/');
                 objLoader.load('SmallSpaceFighter.obj', function(object) {
                     spaceShip = object;
-                    spaceShip.scale.set(.5, .5, .5);
+                    spaceShip.scale.set(0.5, 0.5, 0.5);
                     scene.add(spaceShip);
                 });
             });
         }
-        function resetPlanet(){
+        
+/*        function resetPlanet(){
 			var planetx=THREE.Math.randInt(-1,1);
 			var planety=THREE.Math.randInt(0,3);
-			var planetz=THREE.Math.randInt(-7,-3);
-			
-			
-		}
+			var planetz=THREE.Math.randInt(-7,-3);	
+		} */
+        
 		function loadPlanet(planetx,planety,planetz){
 		
 			var containerEarth	= new THREE.Object3D()
-			containerEarth.scale.set(3,3,3)
+			containerEarth.scale.set(1.5 ,1.5 ,1.5)
 			containerEarth.rotateZ(-23.4 * Math.PI/180)
 			containerEarth.position.z	= planetz
 			containerEarth.position.x	= planetx
@@ -126,10 +126,10 @@ for(i=0;i<1;i++){
 					earthMesh.castShadow	= true
 					containerEarth.add(earthMesh)
 			onRenderFcts.push(function(delta, now){
-				containerEarth.position.z += 7 * delta;
+				containerEarth.position.z += 2 * delta;
 				earthMesh.rotation.y += 1/32 * delta;	
 				if(containerEarth.position.z > 3 ) {
-				containerEarth.position.z	= THREE.Math.randInt(-7,-3);
+				containerEarth.position.z	= THREE.Math.randInt(-10,-5);
 				containerEarth.position.x	= THREE.Math.randInt(-8,8);
 				containerEarth.position.y	= THREE.Math.randInt(0,3);
 				
