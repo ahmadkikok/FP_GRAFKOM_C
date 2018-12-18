@@ -10,6 +10,21 @@
             background: #bbbbbb;
             overflow: hidden;
         }
+
+        .score {
+            position: absolute;
+            color: white;
+            padding: 16px;
+            font-size: 1.5rem;
+        }
+
+        .life {
+            position: absolute;
+            color: white;
+            font-size: 1.5rem;
+            padding: 16px;
+            right: 0;
+        }
     </style>
 	<script src="js/Math.js"></script>
     <script src="js/three.js"></script>
@@ -30,6 +45,12 @@
 </head>
 
 <body>
+    <div class="score">
+        SCORE: <span id="score"></span>
+    </div>
+    <div class="life">
+        LIFE: <span id="life"></span>
+    </div>
     <script>
         var scene, camera, renderer, controls;
         var starSphere, spaceShip;
@@ -41,8 +62,11 @@
         var moon_xmax = 7, moon_xmin = -7;
         var moon_ymax = 5, moon_ymin = -1;
         var moon_zstart = -50;
-        var moon_speed = 40;
         var explosion, particleGeometry, particleCount = 100;
+
+        var score = 0;
+        var moon_speed = 20;
+        var life = 5;
         
         init();
         render();
@@ -50,7 +74,6 @@
         function init() {
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 1000);
-//            camera = new THREE.OrthographicCamera( 10 / - 2, 10 / 2, 10 / 2, 10 / - 2, 1, 1000 );
             camera.position.set(0, 2, 4);
             
             renderer = new THREE.WebGLRenderer();
@@ -70,11 +93,24 @@
 
         function addMoon() {
             for (var i = 0; i < moon_count; i++) {
-                var moon = THREEx.Planets.createMoon();
+                var moon = createMoon();
                 moons.push(moon);
                 resetMoonPos(moon);
+                moon.position.z = (Math.random() * 50) - 100;
                 scene.add(moon);
             }
+        }
+
+        function createMoon() {
+            var geometry    = new THREE.SphereGeometry(1.5, 32, 32);
+            var material    = new THREE.MeshPhongMaterial({
+                map : THREE.ImageUtils.loadTexture(THREEx.Planets.baseURL+'images/moonmap1k.jpg'),
+                bumpMap : THREE.ImageUtils.loadTexture(THREEx.Planets.baseURL+'images/moonbump1k.jpg'),
+                bumpScale: 0.002,
+            });
+            var mesh = new THREE.Mesh(geometry, material);
+
+            return mesh;
         }
 
         function resetMoonPos(moon) {
@@ -107,6 +143,7 @@
                     if (moonbox.intersectsBox(shipbox)) {
                         explode();
                         resetMoonPos(moons[i]);
+                        life -= 1;
                     }                    
                 }
             });
@@ -138,7 +175,7 @@
                 vertex.z = -0.2 + Math.random() * 0.4;
                 particleGeometry.vertices[i]=vertex;
             }
-            explosionPower = 1.07;
+            explosionPower = 1.10;
             explosion.visible = true;
         }
 
@@ -246,7 +283,36 @@
                 })
 
                 doExplosion();
+                updateGamePlay();
             });
+        }
+
+        function updateGamePlay() {
+            score += 1;
+            moon_speed = score / 100 + 20;
+
+            drawScore();
+            drawLife();
+
+            if (life < 1) {
+                alert('GAME OVER');
+                restartGame();
+            }
+        }
+
+        function drawScore() {
+            var scoreview = document.getElementById('score');
+            scoreview.innerHTML = score;
+        }
+
+        function drawLife() {
+            var lifeview = document.getElementById('life');
+            lifeview.innerHTML = life;
+        }
+
+        function restartGame() {
+            score = 0;
+            life = 5;
         }
     </script>
 </body>
