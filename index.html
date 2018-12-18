@@ -20,6 +20,7 @@
     <script src="js/dat.gui.js"></script>
     <script src="js/threex.keyboardstate.js"></script>
     <script src="js/threex.planets.js"></script>
+	<script src="js/threex.spaceships.js"></script>
     <script src="js/ColladaLoader.js"></script>
     <script src="js/PointerLockControls.js"></script>
 	<script src='js/threex.atmospherematerial.js'></script>
@@ -83,21 +84,14 @@
         }
         
          function loadShip() {
-            var mtlLoader = new THREE.MTLLoader();
-            mtlLoader.setResourcePath('assets/');
-            mtlLoader.setPath('assets/');
-            mtlLoader.load('ship.mtl', function(materials) {
-                materials.preload();
-
-                var objLoader = new THREE.OBJLoader();
-                objLoader.setMaterials(materials);
-                objLoader.setPath('assets/');
-                objLoader.load('SmallSpaceFighter.obj', function(object) {
-                    spaceShip = object;
-                    spaceShip.scale.set(0.5, 0.5, 0.5);
-                    scene.add(spaceShip);
-                });
-            });
+           spaceShip	= null;
+		THREEx.SpaceShips.loadSpaceFighter03(function(object3d){
+		scene.add(object3d)
+		spaceShip	= object3d
+		spaceShip.rotateY(Math.PI)
+		//spaceShip.position.x    = -1	
+			spaceShip.scale.multiplyScalar(2);
+	})
         }
         
 /*        function resetPlanet(){
@@ -164,7 +158,21 @@
 		onRenderFcts.push(function(delta, now){
 			earthCloud.rotation.y += 1/8 * delta;		
 			})
+			
+			onRenderFcts.push(function(delta, now){/////////BAGIAN COLLISION
+		// only if the spaceship is loaded
+		if( spaceShip === null )    return
+		// compute distance between spaceship and the moon
+		var distance    = containerEarth.position.distanceTo(spaceShip.position)
+		if( distance < 1 ){
+			containerEarth.position.z	= THREE.Math.randInt(-10,-5);
+				containerEarth.position.x	= THREE.Math.randInt(-8,8);
+				containerEarth.position.y	= THREE.Math.randInt(0,3);
 		}
+	})
+		}
+		
+		
         function addLight() {
             var hemiLight = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1.5 );
             scene.add(hemiLight);
