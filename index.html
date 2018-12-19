@@ -34,16 +34,7 @@
     <script src="js/MTLLoader.js"></script>
     <script src="js/dat.gui.js"></script>
     <script src="js/threex.keyboardstate.js"></script>
-    <script src="js/threex.planets.js"></script>
-	<script src="js/threex.spaceships.js"></script>
-    <script src="js/ColladaLoader.js"></script>
-    <script src="js/PointerLockControls.js"></script>
-	<script src='js/threex.atmospherematerial.js'></script>
-	<script src="js/threex.atmospheredatgui.js"></script>
-    <script src="js/DeviceOrientationControls.js"></script>
 	
-	<!--<script src='vendor/three.js/build/three.min.js'></script>-->
-	<!--<script src='vendor/three.js/examples/js/libs/dat.gui.min.js'></script>-->
 </head>
 
 <body>
@@ -106,8 +97,8 @@
         function createMoon() {
             var geometry    = new THREE.SphereGeometry(1.5, 32, 32);
             var material    = new THREE.MeshPhongMaterial({
-                map : THREE.ImageUtils.loadTexture(THREEx.Planets.baseURL+'images/moonmap1k.jpg'),
-                bumpMap : THREE.ImageUtils.loadTexture(THREEx.Planets.baseURL+'images/moonbump1k.jpg'),
+                map : THREE.ImageUtils.loadTexture('images/moonmap1k.jpg'),
+                bumpMap : THREE.ImageUtils.loadTexture('images/moonbump1k.jpg'),
                 bumpScale: 0.002,
             });
             var mesh = new THREE.Mesh(geometry, material);
@@ -201,7 +192,7 @@
         }
         
          function createStarfield() {
-            var texture = THREE.ImageUtils.loadTexture(THREEx.Planets.baseURL+'assets/galaxy_starfield.png');
+            var texture = THREE.ImageUtils.loadTexture('assets/galaxy_starfield.png');
             starTexture = texture;
             var material = new THREE.MeshBasicMaterial({
                 map : texture,
